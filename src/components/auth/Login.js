@@ -99,7 +99,6 @@ const ContenedorRedes = styled.div`
 `; 
 
 const RedesIcon = styled.div`
-    
     border: 1px solid #fff;
     border-radius: 100%;
 
@@ -121,9 +120,7 @@ const RedesIcon = styled.div`
 `;
 
 const NuevaCuenta = styled.div`
-    
     margin: 1.5em 0;
-
     a{
         text-align: center;
         color: white; 
@@ -149,10 +146,8 @@ const Login = () => {
 
     const envioDatos = (e) => {
         e.preventDefault();
-         
-            if(email.trim() === '' && password.trim() === ''){ 
-
-                  console.log("los datos no estan completos")
+         if(email.trim() === '' && password.trim() === ''){ 
+             console.log("los datos no estan completos")
                 return
             }
 
@@ -168,7 +163,7 @@ const Login = () => {
 
             <ContenedorForm>
                 <h3>CodigoBitMx.!</h3>
-                <p>Unete a codigoBit descrubre grandes beneficion</p>
+                <p>Ingresa a tu perfil de codigoBit descrubre las nuevas implementaciones</p>
     
             <form
                 onSubmit={envioDatos}
