@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { FaArrowLeft } from "react-icons/fa";
+import AuthContext from '../../context/auth/authContext';
+import AlertasContext from '../../context/alertas/alertasContext';
+
 
 const FormUsuario = styled.div`
-    background-color: #333333;
+    background-color: #171717;
     height: 100vh;
     min-height: 100px;
     display: flex;
@@ -21,14 +24,13 @@ const ContenedorForm = styled.div`
     width: 100%;
     max-width: 300px;
     height: 600px;
-    background-color: #333333;
+    background-color: #171717;
     color: white;
 
     a{
         color: white;
         font-family: 'Noto Sans', sans-serif;
         font-size: 12px;
-   
     }
 
     P{
@@ -36,9 +38,9 @@ const ContenedorForm = styled.div`
         margin: 2em 0;
         font-size: 14px;
         font-family: 'Noto Sans', sans-serif;
+        line-height: 22px;
     }
 
-   
     @media(min-width: 768px){
        padding: 1em 1em;
        max-width: 400px;
@@ -115,9 +117,22 @@ const CampoForm = styled.div`
     }
 `;
 
+const Alarma = styled.div`
+    margin: 0 auto 1em auto;
+    width: 90%;
+    border: 1px solid #e01919;
+    padding: 10px 5px;
+    border-radius: 12px;
+
+    p{
+        color: white;
+        font-size: 12px;
+        margin: 0;
+    }
+`;
 
 
-const NuevaCuenta = () => {
+const NuevaCuenta = (props) => {
     //cambio en el input de cumpleaños
     const onfocus = (e) => {
         e.currentTarget.type = 'date';
@@ -126,6 +141,18 @@ const NuevaCuenta = () => {
         e.currentTarget.type = "text";
         e.currentTarget.placeholder = "Fecha de cumpleaños";
     } 
+    // --------------------------------------------------------- //
+
+    const authContext = useContext(AuthContext);
+    const { autenticado, registroUsuario } = authContext;
+    const alertaContext = useContext(AlertasContext);
+    const {alerta, mensaje, mostrarAlerta} = alertaContext;
+
+    useEffect(() => {
+        if(autenticado){    
+            props.history.push('/informacion');
+        }
+    }, [autenticado, props.history]);
 
     const [usuario, guardarUsuario] = useState({
         nombre: '',
@@ -140,18 +167,16 @@ const NuevaCuenta = () => {
         guardarUsuario({
             ...usuario,
             [e.target.name] : e.target.value
-        })
-    }
+        });
+    };
 
     const envioDatosNew = (e) => {
         e.preventDefault();
-        if(nombre.trim() === '' && cumpleaños.trim() === '' && email.trim() === '' && password.trim() === '' ){
-
-            console.log("faltan datos");
+        if( nombre.trim() === '' || cumpleaños.trim() === '' || email.trim() === '' || password.trim() === '' ){
+            mostrarAlerta("faltan datos para el registro");
             return
         }
-        
-        console.log("inicio de sesion")
+         registroUsuario(usuario);
     }
 
     return(
@@ -214,6 +239,8 @@ const NuevaCuenta = () => {
                     onChange = {cambioRegistro}
                 />
             </CampoForm>
+
+            {alerta ? <Alarma><p>{mensaje}</p></Alarma> :null}
 
             <CampoForm>
                 <input

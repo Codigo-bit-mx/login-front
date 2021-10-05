@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
-import styled              from 'styled-components';
+import React, { useContext, useState, useEffect }        from 'react';
+import styled                                            from 'styled-components';
 import { AiFillGithub, AiFillFacebook, AiOutlineGoogle } from "react-icons/ai";
 import { Link }            from 'react-router-dom';
+import authContext         from '../../context/auth/authContext';
+import AlertaContext       from '../../context/alertas/alertasContext';
+import { GoogleLogin }     from 'react-google-login';
+import LoginGithub         from 'react-login-github'; 
 
 const FormUsuario = styled.div`
-    background-color: #333333;
+    background-color: #171717;
     height: 100vh;
     min-height: 100px;
     display: flex;
@@ -21,7 +25,7 @@ const ContenedorForm = styled.div`
     width: 100%;
     max-width: 300px;
     height: 600px;
-    background-color: #333333;
+    background-color: #171717;
     color: white;
 
     P{
@@ -29,9 +33,8 @@ const ContenedorForm = styled.div`
         margin: 2em 0;
         font-size: 14px;
         font-family: 'Noto Sans', sans-serif;
+        line-height: 22px;
     }
-
-   
     @media(min-width: 768px){
        padding: 1em 1em;
        max-width: 400px;
@@ -101,15 +104,14 @@ const ContenedorRedes = styled.div`
 const RedesIcon = styled.div`
     border: 1px solid #fff;
     border-radius: 100%;
-
     p{
         margin: 0;
         color: white;
         font-weight: 550;
         font-size: 20px;
         padding: 16px;
+        cursor: pointer;
     }
-
     &:hover{
         transition: .2s ease-in-out;
         background-color: #ffffff;
@@ -127,7 +129,33 @@ const NuevaCuenta = styled.div`
     }
 `;
 
-const Login = () => {
+const Alarma = styled.div`
+    margin: 0 auto 1em auto;
+    width: 90%;
+    border: 1px solid #e01919;
+    padding: 10px 5px;
+    border-radius: 12px;
+
+    p{
+        color: white;
+        font-size: 12px;
+        margin: 0;
+    }
+`;
+
+const Login = (props) => {
+
+    const authContexts = useContext(authContext)
+    const {autenticado, alarma, error, iniciarSesion, onSignIn} = authContexts;
+    const alertaContext = useContext(AlertaContext);
+    const {alerta, mensaje, mostrarAlerta} = alertaContext;
+
+    useEffect(() => {
+        if(autenticado){    
+            props.history.push('/informacion');
+        }
+    }, [autenticado, props.history]);
+
 
     const [usuario, guardarUsuario ] = useState({
         email: '',
@@ -146,16 +174,29 @@ const Login = () => {
 
     const envioDatos = (e) => {
         e.preventDefault();
-         if(email.trim() === '' && password.trim() === ''){ 
-             console.log("los datos no estan completos")
-                return
+         if(email.trim() === '' || password.trim() === ''){ 
+             mostrarAlerta("los datos estan incompletos");
+             return
             }
-
-            // falta agregar la funcion para disparar el logeo 
-            console.log("logeado bebe jaja")
+            // logeo
+            iniciarSesion(usuario);
+        }
     
+    //logue con google
+        const responseGoogle = (response) => {  
+            if(response.error){
+                console.log("entro en el error");
+                return
+        
+            }else{
+                const date = response.profileObj;
+                onSignIn(date);
+            }
         }
 
+    // logueo con github
+    const onSuccess = response => console.log(response);
+    const onFailure = response => console.error(response);  
 
     return (
         
@@ -164,10 +205,9 @@ const Login = () => {
             <ContenedorForm>
                 <h3>CodigoBitMx.!</h3>
                 <p>Ingresa a tu perfil de codigoBit descrubre las nuevas implementaciones</p>
-    
+
             <form
                 onSubmit={envioDatos}
-          
             >
                 <CampoForm>
                     <input
@@ -191,6 +231,14 @@ const Login = () => {
                     />
                 </CampoForm>
 
+                {alerta ? 
+                <Alarma> <p>{mensaje}</p> </Alarma>
+                 : null}
+
+                {alarma ? 
+                <Alarma> <p>{error}</p> </Alarma>
+                : null}
+
                 <CampoForm>
                     <input
                         type="submit"
@@ -203,9 +251,31 @@ const Login = () => {
             <p>O continuar con estos perfiles sociales </p>
         
             <ContenedorRedes>
-                <RedesIcon><p> <AiOutlineGoogle /></p></RedesIcon>
+               
+                <GoogleLogin
+                clientId="866270435461-psgl6qom45nv9bcf3j09j0h7j6mqqdnm.apps.googleusercontent.com"  
+                render={renderProps => (
+                    <RedesIcon onClick={renderProps.onClick} disabled={renderProps.disabled}><p> <AiOutlineGoogle /></p></RedesIcon>
+                )}
+                buttonText=""
+                onSuccess={responseGoogle}
+                onFailure={responseGoogle}
+                cookiePolicy={'single_host_origin'}
+                />
+
                 <RedesIcon><p> <AiFillFacebook /> </p></RedesIcon>
-                <RedesIcon><p> <AiFillGithub/> </p></RedesIcon>
+
+                {/* <RedesIcon><AiFillGithub/></RedesIcon> */}
+
+                
+                 <LoginGithub
+                 className="buttongit"
+                 clientId="bfc54be637408848b2b9"
+                 buttonText=""
+                 onSuccess={onSuccess}
+                 onFailure={onFailure}> <span><AiFillGithub/></span> </LoginGithub>
+
+    
             </ContenedorRedes>
 
             <NuevaCuenta>

@@ -22,3 +22,25 @@ body {
   font-size: 1.6rem;
   font-family: var(--textFont);
 }
+
+.buttongit{
+  background-color: transparent;
+  border: 1px solid #fff;
+  border-radius: 100%;
+  /* color: white; */
+}
+  .buttongit span{
+      margin: 0;
+      color: white;
+      font-weight: 550;
+      font-size: 20px;
+      /* padding: 16px; */
+      cursor: pointer;
+  }
+  .buttongit:hover{
+      transition: .2s ease-in-out;
+      background-color: #ffffff;
+  }
+  .buttongit:hover span{
+      color: #333333;
+  }
